@@ -44,6 +44,12 @@ html, body {
   background: var(--bg);
   color: var(--text);
   width: 100%;
+}
+
+html {
+  /* Scoped to html only: setting this on both html and body triggers
+     the CSS spec's overflow-y auto-conversion on each independently,
+     producing nested scroll containers that break position: sticky. */
   overflow-x: hidden;
 }
 
@@ -171,33 +177,74 @@ main {
   }
 }
 
-/* ---------- About (single-page snap-scroll) ---------- */
-html.about-page {
-  scroll-snap-type: y proximity;
+/* ---------- About (sticky-stack with peel transition) ---------- */
+.about-section-wrap {
+  position: relative;
+  min-height: 150vh;
+  scroll-margin-top: var(--nav-height);
 }
 
 .about-section {
-  min-height: calc(100vh - var(--nav-height));
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 32px var(--gutter) 64px;
-  scroll-snap-align: start;
-  scroll-margin-top: var(--nav-height);
+  position: sticky;
+  top: var(--nav-height);
+  height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* flex-start, not center: centering a flex container whose content
+     overflows its fixed height clips evenly off both the top and
+     bottom edges instead of scrolling from a sane start point. */
+  justify-content: flex-start;
+}
+
+.about-vellum {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 100% 100%, 0% 100%);
+  transition: clip-path 0.8s cubic-bezier(0.6, 0, 0.4, 1), filter 0.8s ease;
+  pointer-events: none;
+}
+
+.about-vellum.is-peeling {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 78%, 78% 100%, 0% 100%);
+  filter: drop-shadow(10px 14px 22px rgba(0, 0, 0, 0.4));
+}
+
+.about-section-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  /* auto on all sides: horizontal centers the column as before, vertical
+     centers within .about-section when it has slack, and collapses to 0
+     (top-aligned, scrollable) when content overflows the fixed height. */
+  margin: auto;
+  padding: 32px var(--gutter) 64px;
+  width: 100%;
+  color: #1a1717;
+}
+
+.about-section-inner h2 {
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  color: #0a0808;
+  letter-spacing: -0.01em;
+}
+
+.about-section-inner .entry-title {
+  color: #0a0808;
 }
 
 .about-page-nav {
-  position: sticky;
-  top: var(--nav-height);
-  z-index: 90;
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem 2rem;
   margin-top: 2.5rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(227, 219, 219, 0.25);
+  border-top: 1px solid rgba(10, 8, 8, 0.2);
 }
 
 .about-page-nav a {
@@ -205,14 +252,20 @@ html.about-page {
 }
 
 @media (max-width: 700px) {
-  .about-section {
-    min-height: auto;
-    padding: 24px var(--gutter) 48px;
+  .about-section-wrap {
+    min-height: 130vh;
     scroll-margin-top: 0;
   }
 
-  .about-page-nav {
-    position: static;
+  .about-section {
+    /* #site-nav is position: static (not fixed) below 700px, so there's
+       no fixed bar to dodge here; pin sections flush to the viewport top. */
+    top: 0;
+    height: 100vh;
+  }
+
+  .about-section-inner {
+    padding: 24px var(--gutter) 48px;
   }
 }
 
