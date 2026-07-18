@@ -171,37 +171,49 @@ main {
   }
 }
 
-/* ---------- About ---------- */
-.about-wrap {
+/* ---------- About (single-page snap-scroll) ---------- */
+html.about-page {
+  scroll-snap-type: y proximity;
+}
+
+.about-section {
+  min-height: calc(100vh - var(--nav-height));
   max-width: 760px;
   margin: 0 auto;
-  padding: 64px var(--gutter) 96px;
-}
-
-.about-photo {
-  max-width: 320px;
-  margin: 0 0 48px;
-}
-
-.about-nav {
+  padding: 32px var(--gutter) 64px;
+  scroll-snap-align: start;
+  scroll-margin-top: var(--nav-height);
   display: flex;
-  gap: 2rem;
-  margin: 2.5rem 0 1rem;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.about-page-nav {
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 90;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+  margin-top: 2.5rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(227, 219, 219, 0.25);
 }
 
-.about-nav a {
+.about-page-nav a {
   text-decoration: underline;
 }
 
-.about-nav a.active {
-  color: var(--text-bright);
-  text-decoration: none;
-}
+@media (max-width: 700px) {
+  .about-section {
+    min-height: auto;
+    padding: 24px var(--gutter) 48px;
+    scroll-margin-top: 0;
+  }
 
-.education-block, .work-block, .production-block, .skills-block {
-  margin-top: 1rem;
+  .about-page-nav {
+    position: static;
+  }
 }
 
 .entry {
